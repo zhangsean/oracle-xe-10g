@@ -8,12 +8,18 @@ ENV PATH=$ORACLE_HOME/bin:$PATH
 ENV ORACLE_SID=XE
 ENV ORACLE_ALLOW_REMOTE=true
 ENV NLS_LANG="SIMPLIFIED CHINESE_CHINA.AL32UTF8"
+ENV PROXY=http://192.168.1.8:2345/pac
 
-ADD assets/setup1.sh /assets/setup1.sh
-RUN /assets/setup1.sh
-ADD assets /assets
-RUN /assets/setup2.sh
+ADD setup1.sh /setup1.sh
+RUN mkdir /assets && \
+    cd /assets && \
+    sh /setup1.sh && \
+    rm -f /setup1.sh
+RUN wget 10.0.1.129/oracle-xe-10g-univ-assets.tar.gz && \
+    tar zxvf oracle-xe-10g-univ-assets.tar.gz && \
+    rm -rf oracle-xe-10g-univ-assets.tar.gz && \
+    sh /assets/setup2.sh
 
-EXPOSE 22 1521 8080
+EXPOSE 1521 8080
 
 CMD /oracle-startup.sh && /usr/sbin/sshd -D
